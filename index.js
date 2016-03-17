@@ -37,15 +37,15 @@ const http = require('http');
 const webhookListener = http.createServer((req, res) => {
   if(req.method.toLowerCase() === 'post' || req.method.toLowerCase() === 'put') {
     let trelloEvent = '';
-    console.log('Trello webhook call...');
+    log.verbose('Got a webhook event');
 
     req.on('data', chunk => trelloEvent += chunk);
     req.on('end', () => {
       if(!verifyTrelloWebhookRequest(trelloEvent, req.headers['x-trello-webhook'])) {
-        console.log('TRELLO SIGNATURE VERIFICATION FAILED');
+        log.error('TRELLO SIGNATURE VERIFICATION FAILED');
         return;
       }
-      console.log('Handling stuff')
+      log.verbose('Valid Trello webhook event');
 
       trelloEvent = JSON.parse(trelloEvent);
 
