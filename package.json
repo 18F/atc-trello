@@ -7,5 +7,15 @@
     ""
   ],
   "author": "",
-  "license": "CC0-1.0"
+  "license": "CC0-1.0",
+  "scripts": {},
+  "devDependencies": {
+    "localtunnel": "^1.8.1"
+  },
+  "dependencies": {
+    "bpa-trello-dashboard": "github:18f/bpa-trello",
+    "dotenv": "^2.0.0",
+    "js-yaml": "^3.5.3",
+    "node-trello": "^1.1.2"
+  }
 }
