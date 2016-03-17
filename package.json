@@ -13,6 +13,7 @@
     "localtunnel": "^1.8.1"
   },
   "dependencies": {
+    "@erdc-itl/simple-logger": "^1.1.0",
     "bpa-trello-dashboard": "github:18f/bpa-trello",
     "dotenv": "^2.0.0",
     "js-yaml": "^3.5.3",

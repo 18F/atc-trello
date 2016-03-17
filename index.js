@@ -6,6 +6,12 @@ const bpa = require('bpa-trello-dashboard/app');
 const PORT = process.env.PORT || 5000;
 const t = new Trello(process.env.TRELLO_API_KEY, process.env.TRELLO_API_TOK);
 const util = require('./util');
+const Logger = require('@erdc-itl/simple-logger');
+Logger.setOptions({
+  level: (process.env.LOG_LEVEL || 10),
+  console: true
+});
+const log = new (require('@erdc-itl/simple-logger'))('main');
 
 var crypto = require('crypto');
 
@@ -94,9 +100,9 @@ var __HOSTNAME;
 var __WEBHOOK_ID;
 
 webhookListener.listen(PORT, '0.0.0.0', () => {
-  console.log(`Listening on local port ${PORT}`);
+  log.info(`Listening on local port ${PORT}`);
   util.getHostname(PORT).then(hostname => {
-    console.log(`Now accessible at ${hostname}`);
+    log.info(`Now accessible at ${hostname}`);
     __HOSTNAME = hostname;
     t.post('/1/webhooks', {
       description: 'ATC Trello Webhook',
@@ -104,29 +110,31 @@ webhookListener.listen(PORT, '0.0.0.0', () => {
       idModel: process.env.ATC_TRELLO_BOARD_ID
     }, function(err, data) {
       if(err) {
-        console.log('Error setting up Trello webhook');
-        console.log(err);
+        log.error('Error setting up Trello webhook');
+        log.error(err);
         process.exit(20);
         return;
       }
 
       __WEBHOOK_ID = data.id;
-      console.log(`Trello webhook registered [${data.id}]`);
+      log.info(`Trello webhook registered [${data.id}]`);
     });
   }).catch(e => {
-    console.log('Error getting hostname:');
-    console.log(e);
+    log.error('Error getting hostname:');
+    log.error(e);
     process.exit(10);
   });
 });
 
 function cleanup() {
+  process.stdout.write('\r');
+  log.info('Shutting down');
   t.del(`/1/webhooks/${__WEBHOOK_ID}`, function(err, data) {
     if(err) {
-      console.log('Error unregistering Trello webhook');
-      console.log(err);
+      log.error('Error unregistering Trello webhook');
+      log.error(err);
     } else {
-      console.log('Trello webhook unregistered');
+      log.info('Trello webhook unregistered');
     }
     process.exit(0);
   });
