@@ -64,6 +64,8 @@ class TrelloWebhookServer {
             return;
           }
           log.verbose('Valid Trello webhook event');
+          res.statusCode = 200;
+          res.end();
 
           trelloEvent = JSON.parse(trelloEvent);
           for(const handler of this._handlers.data) {
