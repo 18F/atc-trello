@@ -1,5 +1,7 @@
 # atc-trello
 
+[![Code Climate](https://codeclimate.com/github/18F/atc-trello/badges/gpa.svg)](https://codeclimate.com/github/18F/atc-trello)
+
 Listens for changes on the Air Traffic Control Trello board and uses those events to sync to the BPA Trello board.
 
 Cards that are moved into the "In Flight" status are examined.  If a card's description includes one or more BPA orders (of the form: `BPA: <order name>`), a card will be created in the BPA Trello for each BPA order, with a link back to the ATC card.  The ATC card will then be updated to include links to all applicable BPA orders.
