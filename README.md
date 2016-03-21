@@ -1,8 +1,8 @@
 # atc-trello
 
-[![Code Climate](https://codeclimate.com/github/18F/atc-trello/badges/gpa.svg)](https://codeclimate.com/github/18F/atc-trello)
+[![Code Climate](https://codeclimate.com/github/18F/atc-trello/badges/gpa.svg)](https://codeclimate.com/github/18F/atc-trello) [![Dependencies](https://david-dm.org/18F/atc-trello.svg)](https://david-dm.org/18F/atc-trello)
 
-Listens for changes on the Air Traffic Control Trello board and uses those events to sync to the BPA Trello board.
+Listens for changes on the Air Traffic Control (ATC) Trello board and uses those events to sync to the BPA Trello board.  Creates an HTTP server and then registers itself as a webhook with Trello on the ATC board.  (Note: For local development, the server can also create a localtunnel to itself and use that to register with Trello.)
 
 Cards that are moved into the "In Flight" status are examined.  If a card's description includes one or more BPA orders (of the form: `BPA: <order name>`), a card will be created in the BPA Trello for each BPA order, with a link back to the ATC card.  The ATC card will then be updated to include links to all applicable BPA orders.
 
@@ -25,6 +25,7 @@ ATC_TRELLO_BOARD_ID  | The board ID of the Air Traffic Control board.
 BPA_TRELLO_BOARD_ID  | The board ID of the BPA board.
 LOCALTUNNEL          | Optional.  If `true`, creates a localtunnel.me for the local server.
 PORT                 | Optional.  If not set, defaults to 5000.
+HOST                 | Optional.  If set, this is the hostname used to register the webhook with Trello.
 
 ### Public domain
 
