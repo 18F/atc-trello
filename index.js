@@ -15,8 +15,16 @@ const log = new (require('@erdc-itl/simple-logger'))('main');
 const trelloWHServer = new WebhookServer(PORT);
 trelloWHServer.start();
 
+function isMoveCardAction(action) {
+  return (action.type === 'updateCard' && action.data.listAfter && action.data.listBefore);
+}
+
 trelloWHServer.on('data', e => {
-  console.log(e);
+  if(isMoveCardAction(e.action)) {
+    if(e.action.data.listAfter.name === 'In Flight') {
+      log.verbose('Card was moved to In Flight');
+    }
+  }
 });
 
 function cleanup() {
