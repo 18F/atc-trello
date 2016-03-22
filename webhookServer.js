@@ -15,7 +15,7 @@ function verifyTrelloWebhookRequest(hostname, body, signature) {
   var content = body + hostname;
   var doubleHash = base64Digest(base64Digest(content));
   var headerHash = base64Digest(signature);
-  return doubleHash == headerHash;
+  return doubleHash === headerHash;
 }
 
 class TrelloWebhookServer {
