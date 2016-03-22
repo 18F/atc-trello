@@ -190,6 +190,7 @@ tap.test('Webhook server class', t1 => {
     t2.test('with valid hostname and no Trello errors', t3 => {
       const whStart = wh.start();
       t3.equal(createServerMock.callCount, 1, 'calls http.createServer once');
+      t3.equal(typeof createServerMock.args[0][0], 'function', 'registers a callback function');
       t3.equal(getHostnameMock.callCount, 1, 'calls getHostname once');
       t3.equal(listenMock.callCount, 1, 'calls server.listen once');
       t3.equal(listenMock.args[0][0], port, 'listens on the specified port');
@@ -217,6 +218,7 @@ tap.test('Webhook server class', t1 => {
     t2.test('with valid hostname and Trello errors', t3 => {
       const whStart = wh.start();
       t3.equal(createServerMock.callCount, 1, 'calls http.createServer once');
+      t3.equal(typeof createServerMock.args[0][0], 'function', 'registers a callback function');
       t3.equal(getHostnameMock.callCount, 1, 'calls getHostname once');
       t3.equal(listenMock.callCount, 1, 'calls server.listen once');
       t3.equal(listenMock.args[0][0], port, 'listens on the specified port');
@@ -297,6 +299,49 @@ tap.test('Webhook server class', t1 => {
 
     common.resetEnvVars();
     t2.done();
+  });
+
+  t1.test('http server', t2 => {
+    process.env.TRELLO_API_KEY = 'key';
+    const wh = new webhookServer(9000);
+
+    const reqOnMock = sandbox.stub();
+    const createServerMock = sandbox.stub(http, 'createServer').returns({
+      listen: sandbox.spy()
+    });
+
+    wh.start();
+    const handler = createServerMock.args[0][0];
+
+    const res = {
+      statusCode: 0,
+      end: sandbox.spy()
+    };
+
+    t2.afterEach(done => {
+      res.end.reset();
+      reqOnMock.reset();
+      done();
+    });
+
+    t2.test('handles HEAD request', t3 => {
+      handler({ method: 'HEAD', on: function() { } }, res);
+      t3.equal(res.statusCode, 200, 'status code is 200');
+      t3.equal(res.end.callCount, 1, 'res.end() called once');
+      t3.done();
+    });
+
+    t2.test('hadles PUT or POST request', t3 => {
+      handler({ method: 'POST', on: reqOnMock }, res);
+      t3.equal(reqOnMock.callCount, 2, 'req.on is called twice');
+      t3.equal(reqOnMock.args[0][0], 'data', 'subscribed to data event');
+      t3.equal(reqOnMock.args[1][0], 'end', 'subscribed to end event');
+      t3.done();
+    });
+
+    t2.done();
+
+    common.resetEnvVars();
   });
 
   t1.done();
