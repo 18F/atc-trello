@@ -4,7 +4,7 @@ const tap = require('tap');
 const mock = require('mock-require');
 const sinon = require('sinon');
 const common = require('./common');
-const hostname = require('../util/hostname');
+const utils = require('../util');
 
 tap.test('Hostname provider', t1 => {
   const testPortNumber = 9999;
@@ -15,7 +15,7 @@ tap.test('Hostname provider', t1 => {
     delete process.env.HOST;
     delete process.env.LOCALTUNNEL;
 
-    hostname(testPortNumber).catch(() => {
+    utils.getHostname(testPortNumber).catch(() => {
       t2.pass('it rejects');
       t2.done();
       common.resetEnvVars();
@@ -26,7 +26,7 @@ tap.test('Hostname provider', t1 => {
     process.env.HOST = testHostName;
     delete process.env.LOCALTUNNEL;
 
-    hostname(testPortNumber).then(host => {
+    utils.getHostname(testPortNumber).then(host => {
       t2.equal(host, testHostName, 'resolves hostname from env var');
       t2.done();
       common.resetEnvVars();
@@ -52,7 +52,7 @@ tap.test('Hostname provider', t1 => {
     });
 
     t2.test('With error from localtunnel', t3 => {
-      hostname(testPortNumber).then(x => {
+      utils.getHostname(testPortNumber).then(x => {
         t3.fail('resolved instead of rejecting');
         t3.done();
       }).catch(e => {
@@ -64,7 +64,7 @@ tap.test('Hostname provider', t1 => {
     });
 
     t2.test('With no error from localtunnel', t3 => {
-      hostname(testPortNumber).then(host => {
+      utils.getHostname(testPortNumber).then(host => {
         t3.equal(require('localtunnel').callCount, 1, 'calls localtunnel once');
         t3.equal(onMock.callCount, 1, 'calls localtunnel event subscription once');
         t3.equal(onMock.args[0][0], 'close', 'subscribes to the close event');
@@ -84,7 +84,7 @@ tap.test('Hostname provider', t1 => {
     const onMock = sinon.spy();
     mock('localtunnel', sinon.stub().yieldsAsync(null, { on: onMock, url: testHostName }));
 
-    hostname(testPortNumber).then(host => {
+    utils.getHostname(testPortNumber).then(host => {
       t2.equal(onMock.callCount, 1, 'calls localtunnel event subscription once');
       t2.equal(onMock.args[0][0], 'close', 'subscribes to the close event');
       t2.equal(typeof onMock.args[0][1], 'function', 'subscribes with a function');
