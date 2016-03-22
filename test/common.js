@@ -1,4 +1,5 @@
 "use strict";
+require('sinon-as-promised');
 
 const knownEnvVarNames = [
   "TRELLO_API_KEY", "TRELLO_CLIENT_SECRET", "TRELLO_API_TOK",
