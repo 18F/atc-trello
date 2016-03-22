@@ -1,0 +1,16 @@
+stages:
+- name: "Pre-Award"
+  substages:
+  - name: "Preflight"
+  - name: "Taxiing"
+  - name: "Climbing"
+  - name: "In Flight"
+  - name: "Landing"
+  - name: "Landed"
+  - name: "Complete"
+  - name: "At Gate"
+  - name: "Autopilot"
+  - name: "Grounded"
+
+bpaLabels:
+- name: Bob Hope
