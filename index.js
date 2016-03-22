@@ -5,26 +5,25 @@ const bpa = require('bpa-trello-dashboard/app');
 const PORT = process.env.PORT || 5000;
 const WebhookServer = require('./webhookServer');
 const util = require('./util');
-const Logger = require('@erdc-itl/simple-logger');
-Logger.setOptions({
-  level: (process.env.LOG_LEVEL || 10),
-  console: true
-});
-const log = new (require('@erdc-itl/simple-logger'))('main');
+const log = util.getLogger('main');
 
 const trelloWHServer = new WebhookServer(PORT);
-trelloWHServer.start();
+//trelloWHServer.start();
 
 function isMoveCardAction(action) {
   return (action.type === 'updateCard' && action.data.listAfter && action.data.listBefore);
 }
 
-trelloWHServer.on('data', e => {
+trelloWHServer.start().then(s => s.on('data', e => {
   if(isMoveCardAction(e.action)) {
     if(e.action.data.listAfter.name === 'In Flight') {
       log.verbose('Card was moved to In Flight');
     }
   }
+})).catch(e => {
+  log.error('Error starting Trello webhook server');
+  log.error(e);
+  process.exit(10);
 });
 
 function cleanup() {

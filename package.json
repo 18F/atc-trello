@@ -10,7 +10,7 @@
   "license": "CC0-1.0",
   "scripts": {
     "start": "node index.js",
-    "test": "tap -Rspec --cov test/test-*.js"
+    "test": "LOG_LEVEL=100 tap -Rspec --cov test/test-*.js"
   },
   "engines": {
     "node": ">=5.8.0 <5.9.0",
