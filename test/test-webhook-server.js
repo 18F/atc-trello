@@ -3,6 +3,7 @@
 const tap = require('tap');
 const sinon = require('sinon');
 const http = require('http');
+const crypto = require('crypto');
 const trello = require('node-trello');
 const common = require('./common');
 const util = require('../util');
@@ -303,15 +304,24 @@ tap.test('Webhook server class', t1 => {
 
   t1.test('http server', t2 => {
     process.env.TRELLO_API_KEY = 'key';
-    const wh = new webhookServer(9000);
+
+    const hostname = 'test-host';
+    const getHostnameMock = sandbox.stub(util, 'getHostname').resolves(hostname);
+
+    const trelloClientSecret = 'client-secret-key';
+    const trelloData = `{ "some": "data", "value": 3 }`;
+    const trelloSignature = crypto.createHmac('sha1', trelloClientSecret).update(trelloData + hostname).digest('base64');
 
     const reqOnMock = sandbox.stub();
     const createServerMock = sandbox.stub(http, 'createServer').returns({
       listen: sandbox.spy()
     });
 
+    const wh = new webhookServer(9000);
     wh.start();
+    wh._hostname = hostname;
     const handler = createServerMock.args[0][0];
+    let dataEventHandler, endEventHandler;
 
     const res = {
       statusCode: 0,
@@ -331,13 +341,59 @@ tap.test('Webhook server class', t1 => {
       t3.done();
     });
 
-    t2.test('hadles PUT or POST request', t3 => {
-      handler({ method: 'POST', on: reqOnMock }, res);
-      t3.equal(reqOnMock.callCount, 2, 'req.on is called twice');
-      t3.equal(reqOnMock.args[0][0], 'data', 'subscribed to data event');
-      t3.equal(reqOnMock.args[1][0], 'end', 'subscribed to end event');
+    for(const method of [ 'PUT', 'POST' ]) {
+      t2.test(`hadles ${method} request`, t3 => {
+        handler({ method: method, on: reqOnMock }, res);
+        t3.equal(reqOnMock.callCount, 2, 'req.on is called twice');
+        t3.equal(reqOnMock.args[0][0], 'data', 'subscribed to data event');
+        t3.equal(typeof reqOnMock.args[0][1], 'function', 'subscribed to data event with function');
+        t3.equal(reqOnMock.args[1][0], 'end', 'subscribed to end event');
+        t3.equal(typeof reqOnMock.args[1][1], 'function', 'subscribed to end event with function');
+
+        t3.done();
+      });
+    }
+
+    // these two tests need to reset the request
+    // so the data and end event handlers won't
+    // hold over data
+
+    const sendNewRequest = () => {
+      handler({ method: 'POST', on: reqOnMock, headers: { 'x-trello-webhook': trelloSignature }}, res);
+      dataEventHandler = reqOnMock.args[0][1];
+      endEventHandler = reqOnMock.args[1][1];
+    };
+
+    t2.test('ignores invalid Trello data', t3 => {
+      sendNewRequest();
+      process.env.TRELLO_CLIENT_SECRET = 'some-random-junk';
+
+      dataEventHandler(trelloData);
+      endEventHandler();
+
+      t3.equal(res.statusCode, 400, 'status code is 400');
+
+      common.resetEnvVars();
       t3.done();
     });
+
+    t2.test('processes valid Trello data', t3 => {
+      sendNewRequest();
+      process.env.TRELLO_CLIENT_SECRET = trelloClientSecret;
+      const dataMock = sinon.spy();
+      wh.on('data', dataMock);
+
+      dataEventHandler(trelloData);
+      endEventHandler();
+
+      t3.equal(res.statusCode, 200, 'status code is 200');
+      t3.equal(dataMock.callCount, 1, 'external data event subscription is called once');
+      t3.equal(JSON.stringify(dataMock.args[0][0]), JSON.stringify(JSON.parse(trelloData)), 'passes back parsed Trello data');
+      t3.equal(typeof dataMock.args[0][0], 'object', 'parsed Trello data is an object');
+
+      common.resetEnvVars();
+      t3.done();
+    })
 
     t2.done();
 
