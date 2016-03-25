@@ -354,10 +354,6 @@ tap.test('Webhook server class', t1 => {
       });
     }
 
-    // these two tests need to reset the request
-    // so the data and end event handlers won't
-    // hold over data
-
     const sendNewRequest = () => {
       handler({ method: 'POST', on: reqOnMock, headers: { 'x-trello-webhook': trelloSignature }}, res);
       dataEventHandler = reqOnMock.args[0][1];
