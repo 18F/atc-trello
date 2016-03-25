@@ -6,7 +6,9 @@ Listens for changes on the Air Traffic Control (ATC) Trello board and uses those
 
 Cards that are moved into the "In Flight" status are examined.  If a card's description includes one or more BPA orders (of the form: `BPA: <order name>`), a card will be created in the BPA Trello for each BPA order, with a link back to the ATC card.  The ATC card will then be updated to include links to all applicable BPA orders.
 
-**Planned:**  The server will also listen to the BPA Trello board and will update the labels on ATC cards as BPA order moves through the system.
+## Planned
+
+The server will also listen to the BPA Trello board and will update the labels on ATC cards as BPA order moves through the system.
 
 ## Running
 
@@ -17,15 +19,16 @@ Clone this repo, then run `npm install`.  Once all the dependencies are down, yo
 The following environment variables are used:
 
 name                 | description
--------------------- | ----------------------------------------------------------------------------------------------------------------------------------------
+-------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------
 TRELLO_API_KEY       | Obtained from [Trello](https://trello.com/app-key). Located near the top of that page.
 TRELLO_CLIENT_SECRET | Obtained from [Trello](https://trello.com/app-key). There's a link to generate the key at the end of the first paragraph headed "Token."
 TRELLO_API_TOK       | Obtained from [Trello](https://trello.com/app-key). Located near the bottom of that page.
 ATC_TRELLO_BOARD_ID  | The board ID of the Air Traffic Control board.
 BPA_TRELLO_BOARD_ID  | The board ID of the BPA board.
-LOCALTUNNEL          | Optional.  If `true`, creates a localtunnel.me for the local server.
+LOCALTUNNEL          | Optional.  If `true`, creates a localtunnel.me for the local server. This is a development feature and should be `false` or unset in production.
 PORT                 | Optional.  If not set, defaults to 5000.
-HOST                 | Optional.  If set, this is the hostname used to register the webhook with Trello.
+HOST                 | Optional.  If set, this is the hostname used to register the webhook with Trello. This should be unset in development and set in production.
+LOG_LEVEL            | Optional.  If set, determines the logging level.  10 is verbose, 20 is info, 30 is warning, and 40 is error. If unset, defaults to verbose.      |
 
 ### Public domain
 
