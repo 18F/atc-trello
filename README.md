@@ -1,6 +1,9 @@
 # atc-trello
 
-[![Code Climate](https://codeclimate.com/github/18F/atc-trello/badges/gpa.svg)](https://codeclimate.com/github/18F/atc-trello) [![Dependencies](https://david-dm.org/18F/atc-trello.svg)](https://david-dm.org/18F/atc-trello)
+[![Build Status](https://travis-ci.org/18F/atc-trello.svg?branch=develop)](https://travis-ci.org/18F/atc-trello)
+[![codecov.io](https://codecov.io/github/18F/atc-trello/coverage.svg?branch=develop)](https://codecov.io/github/18F/atc-trello?branch=develop)
+[![Code Climate](https://codeclimate.com/github/18F/atc-trello/badges/gpa.svg)](https://codeclimate.com/github/18F/atc-trello)
+[![Dependencies](https://david-dm.org/18F/atc-trello.svg)](https://david-dm.org/18F/atc-trello)
 
 Listens for changes on the Air Traffic Control (ATC) Trello board and uses those events to sync to the BPA Trello board.  Creates an HTTP server and then registers itself as a webhook with Trello on the ATC board.  (Note: For local development, the server can also create a localtunnel to itself and use that to register with Trello.)
 
