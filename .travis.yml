@@ -1,4 +1,4 @@
 before_install:
-  - pip install codecov
+  - npm install -g codecov.io
 after_success:
-  - codecov
+  - codecov.io
