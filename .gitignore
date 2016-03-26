@@ -3,6 +3,10 @@ logs
 *.log
 npm-debug.log*
 
+# Test and coverage output
+.nyc_output
+coverage
+
 # Dependency directory
 node_modules
 
