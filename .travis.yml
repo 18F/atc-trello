@@ -1,4 +1,8 @@
 before_install:
   - npm install -g codecov.io
+install:
+  - npm install
+script:
+  - npm test
 after_success:
   - codecov.io
