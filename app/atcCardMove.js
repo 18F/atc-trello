@@ -31,6 +31,7 @@ function addBpaCardsForAtc(cardID) {
         bpasNeeded = [ ];
       }
       const bpaPromises = [ ];
+      const urlMaps = [ ];
 
       for(const bpa of bpasNeeded) {
         bpaPromises.push(
@@ -39,8 +40,7 @@ function addBpaCardsForAtc(cardID) {
             order: bpa.substr(4).trim(),
             trello: card.shortUrl
           }).then(bpaCard => {
-            card.desc = card.desc.replace(bpa, `BPA: ${bpaCard.url}`);
-            trello.put(`/1/card/${card.id}`, card, () => { });
+            urlMaps.push({ bpa: bpa, url: bpaCard.url });
           }).catch(err => {
             log.error('Error creating BPA card');
             log.error(err);
@@ -48,7 +48,16 @@ function addBpaCardsForAtc(cardID) {
         );
       }
 
-      Promise.all(bpaPromises).then(() => resolve());
+      Promise.all(bpaPromises).then(() => {
+        if(urlMaps.length) {
+          for(const map of urlMaps) {
+            card.desc = card.desc.replace(map.bpa, `BPA: ${map.url}`);
+          }
+          trello.put(`/1/card/${card.id}`, card, () => resolve());
+        } else {
+          resolve();
+        }
+      });
     });
   });
 }
