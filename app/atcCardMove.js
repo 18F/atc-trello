@@ -1,4 +1,5 @@
 "use strict";
+
 const util = require('../util');
 const log = util.getLogger('atc card move');
 const Trello = require('node-trello');
@@ -23,7 +24,12 @@ function addBpaCardsForAtc(cardID) {
 
       // If one of the "BPA: " lines of the description already
       // has a link, don't need to create another card.
-      const bpasNeeded = card.desc.match(/BPA:([^\n]+)/gi).filter(bpa => bpa.indexOf("https://trello.com") < 0);
+      let bpasNeeded = card.desc.match(/BPA:([^\n]+)/gi);
+      if(bpasNeeded) {
+        bpasNeeded = bpasNeeded.filter(bpa => bpa.indexOf("https://trello.com") < 0);
+      } else {
+        bpasNeeded = [ ];
+      }
       const bpaPromises = [ ];
 
       for(const bpa of bpasNeeded) {
