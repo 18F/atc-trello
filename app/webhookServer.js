@@ -3,7 +3,7 @@
 const Trello = require('node-trello');
 const http = require('http');
 const crypto = require('crypto');
-const util = require('./util');
+const util = require('../util');
 const log = util.getLogger('webhook server');
 
 function verifyTrelloWebhookRequest(hostname, body, signature) {

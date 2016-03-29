@@ -7,7 +7,7 @@ const crypto = require('crypto');
 const trello = require('node-trello');
 const common = require('./common');
 const util = require('../util');
-const webhookServer = require('../webhookServer');
+const webhookServer = require('../app').webhookServer;
 
 tap.test('Webhook server class', t1 => {
   const sandbox = sinon.sandbox.create();
