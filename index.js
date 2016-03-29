@@ -1,15 +1,15 @@
 'use strict';
 
 require('dotenv').config();
-const Trello = require('node-trello');
-const bpa = require('bpa-trello-dashboard/app');
 const PORT = process.env.PORT || 5000;
-const WebhookServer = require('./webhookServer');
+const app = require('./app');
+const WebhookServer = app.webhookServer;
 const util = require('./util');
 const log = util.getLogger('main');
 
 const trelloWHServer = new WebhookServer(PORT);
 
+/*
 function isMoveCardAction(action) {
   return (action.type === 'updateCard' && action.data.listAfter && action.data.listBefore);
 }
@@ -43,14 +43,23 @@ function addBpaCardsForAtc(cardID) {
     }
   });
 }
+*/
 
 trelloWHServer.start().then(s => s.on('data', e => {
-  if(isMoveCardAction(e.action)) {
+  let promise = null;
+  for(let handler of app.handlers) {
+    if(promise) {
+      promise = promise.then(handler);
+    } else {
+      promise = handler(e)
+    }
+  }
+  /*if(isMoveCardAction(e.action)) {
     if(e.action.data.listAfter.name === 'In Flight') {
       log.verbose('Card was moved to In Flight');
       addBpaCardsForAtc(e.action.data.card.id);
     }
-  }
+  }*/
 })).catch(e => {
   log.error('Error starting Trello webhook server');
   log.error(e);
