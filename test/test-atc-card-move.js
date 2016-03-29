@@ -18,7 +18,6 @@ tap.test('ATC Card Move handler', t1 => {
   });
 
   const doTest = function(e, test, done) {
-    console.log('doTest');
     if(!done) {
       done = () => null;
     }
@@ -27,12 +26,10 @@ tap.test('ATC Card Move handler', t1 => {
         test.equal(eResolved, e, 'resolves the event object');
         test.pass('resolves');
         done();
-        console.log('doTest.then');
       })
       .catch(() => {
         test.fail('resolves');
         done();
-        console.log('doTest.catch');
       });
   };
 
@@ -117,6 +114,8 @@ tap.test('ATC Card Move handler', t1 => {
         trelloGet = sandbox.stub(trello.prototype, 'get');
         trelloPut = sandbox.stub(trello.prototype, 'put');
         createCard = sandbox.stub(bpa.CardCreator.prototype, 'createCard');
+
+        trelloPut.yields(null, null);
         done();
       });
 
@@ -154,7 +153,7 @@ tap.test('ATC Card Move handler', t1 => {
           doTest(e, t5).then(() => {
             t5.equal(trelloGet.callCount, 1, 'calls Trello get once');
             t5.equal(createCard.callCount, 3, 'calls createCard 3 times');
-            t5.equal(trelloPut.callCount, 3, 'calls Trello put 3 times');
+            t5.equal(trelloPut.callCount, 1, 'calls Trello put once');
             t5.end();
           });
         });
