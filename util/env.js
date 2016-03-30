@@ -11,7 +11,6 @@ const knownEnvs = [
   'ATC_TRELLO_BOARD_ID',
   'BPA_TRELLO_BOARD_ID',
   'LOCALTUNNEL',
-  'PORT',
   'HOST',
   'LOG_LEVEL'
 ]
