@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const tap = require('tap');
 const path = require('path');
@@ -12,18 +12,18 @@ tap.test('read-yaml util', t1 => {
     }).catch(() => {
       t2.pass('rejects');
       t2.done();
-    })
+    });
   });
 
   t1.test('with valid file', t2 => {
     utils.readYaml(path.join(__dirname, 'test-valid.yaml')).then(obj => {
       t2.equal(typeof obj, 'object', 'resolves an object');
       t2.done();
-    }).catch(e => {
+    }).catch(() => {
       t2.fail('rejects instead of passing');
       t2.done();
     });
-  })
+  });
 
   t1.done();
 });

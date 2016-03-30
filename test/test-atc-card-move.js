@@ -1,11 +1,10 @@
-"use strict";
+'use strict';
 
 const tap = require('tap');
 const sinon = require('sinon');
 const trello = require('node-trello');
 const bpa = require('bpa-trello-dashboard/app');
 const common = require('./common');
-const util = require('../util');
 const atcCardMove = require('../app/atcCardMove');
 
 tap.test('ATC Card Move handler', t1 => {
@@ -17,24 +16,24 @@ tap.test('ATC Card Move handler', t1 => {
     done();
   });
 
-  const doTest = function(e, test, done) {
-    if(!done) {
-      done = () => null;
+  const doTest = (e, test, done) => {
+    let cb = done;
+    if (!cb) {
+      cb = () => null;
     }
     return atcCardMove(e)
       .then(eResolved => {
         test.equal(eResolved, e, 'resolves the event object');
         test.pass('resolves');
-        done();
+        cb();
       })
       .catch(() => {
         test.fail('resolves');
-        done();
+        cb();
       });
   };
 
   t1.test('When card is not moved', t2 => {
-
     t2.test('Action is not a card update', t3 => {
       const e = {
         action: {
@@ -103,7 +102,8 @@ tap.test('ATC Card Move handler', t1 => {
         }
       };
 
-      let trelloGet, trelloPut;
+      let trelloGet;
+      let trelloPut;
       let createCard;
 
       t2.beforeEach(done => {

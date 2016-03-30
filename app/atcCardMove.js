@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const util = require('../util');
 const log = util.getLogger('atc card move');
@@ -11,11 +11,12 @@ function isMoveCardAction(action) {
 
 function addBpaCardsForAtc(cardID) {
   return new Promise(resolve => {
-    let trello = new Trello(process.env.TRELLO_API_KEY, process.env.TRELLO_API_TOK);
+    const trello = new Trello(process.env.TRELLO_API_KEY, process.env.TRELLO_API_TOK);
     const bpaCardCreator = new bpa.CardCreator(null, process.env.BPA_TRELLO_BOARD_ID);
 
-    trello.get(`/1/cards/${cardID}`, (err, card) => {
-      if(err) {
+    trello.get(`/1/cards/${cardID}`, (err, trelloCard) => {
+      const card = trelloCard;
+      if (err) {
         log.error('Error getting Trello card');
         log.error(err);
         resolve();
@@ -25,32 +26,32 @@ function addBpaCardsForAtc(cardID) {
       // If one of the "BPA: " lines of the description already
       // has a link, don't need to create another card.
       let bpasNeeded = card.desc.match(/BPA:([^\n]+)/gi);
-      if(bpasNeeded) {
-        bpasNeeded = bpasNeeded.filter(bpa => bpa.indexOf("https://trello.com") < 0);
+      if (bpasNeeded) {
+        bpasNeeded = bpasNeeded.filter(bpaOrder => bpaOrder.indexOf('https://trello.com') < 0);
       } else {
-        bpasNeeded = [ ];
+        bpasNeeded = [];
       }
-      const bpaPromises = [ ];
-      const urlMaps = [ ];
+      const bpaPromises = [];
+      const urlMaps = [];
 
-      for(const bpa of bpasNeeded) {
+      for (const bpaOrder of bpasNeeded) {
         bpaPromises.push(
           bpaCardCreator.createCard({
             project: card.name,
-            order: bpa.substr(4).trim(),
+            order: bpaOrder.substr(4).trim(),
             trello: card.shortUrl
           }).then(bpaCard => {
-            urlMaps.push({ bpa: bpa, url: bpaCard.url });
-          }).catch(err => {
+            urlMaps.push({ bpa: bpaOrder, url: bpaCard.url });
+          }).catch(ccErr => {
             log.error('Error creating BPA card');
-            log.error(err);
+            log.error(ccErr);
           })
         );
       }
 
       Promise.all(bpaPromises).then(() => {
-        if(urlMaps.length) {
-          for(const map of urlMaps) {
+        if (urlMaps.length) {
+          for (const map of urlMaps) {
             card.desc = card.desc.replace(map.bpa, `BPA: ${map.url}`);
           }
           trello.put(`/1/card/${card.id}`, card, () => resolve());
@@ -62,9 +63,9 @@ function addBpaCardsForAtc(cardID) {
   });
 }
 
-module.exports = function(e) {
-  if(isMoveCardAction(e.action)) {
-    if(e.action.data.listAfter.name === 'In Flight') {
+module.exports = function atcCardMovedHandler(e) {
+  if (isMoveCardAction(e.action)) {
+    if (e.action.data.listAfter.name === 'In Flight') {
       log.verbose('Card was moved to In Flight');
       return addBpaCardsForAtc(e.action.data.card.id).then(() => e);
     }
@@ -74,4 +75,4 @@ module.exports = function(e) {
   // moved to In Flight, just return a resolved
   // promise so the chain can continue.
   return Promise.resolve(e);
-}
+};

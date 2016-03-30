@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const Logger = require('@erdc-itl/simple-logger');
 Logger.setOptions({
@@ -6,6 +6,6 @@ Logger.setOptions({
   console: true
 });
 
-module.exports = function(name) {
+module.exports = function getLogger(name) {
   return new Logger(name);
 };

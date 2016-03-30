@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const tap = require('tap');
 const sinon = require('sinon');
@@ -7,7 +7,7 @@ const crypto = require('crypto');
 const trello = require('node-trello');
 const common = require('./common');
 const util = require('../util');
-const webhookServer = require('../app').webhookServer;
+const WebhookServer = require('../app').webhookServer;
 
 tap.test('Webhook server class', t1 => {
   const sandbox = sinon.sandbox.create();
@@ -24,13 +24,15 @@ tap.test('Webhook server class', t1 => {
       { name: 'with huge port', value: 352342 }
     ];
 
-    for(const fail of fails) {
+    for (const fail of fails) {
       t2.test(fail.name, t3 => {
+        let whs;
         function wrapper() {
-          new webhookServer(fail.value);
+          whs = new WebhookServer(fail.value);
         }
 
         t3.throws(wrapper, 'throws an exception');
+        t3.equal(whs, undefined, 'WebhookServer should be undefined');
         t3.done();
       });
     }
@@ -38,12 +40,12 @@ tap.test('Webhook server class', t1 => {
     t2.test('with valid port', t3 => {
       const validPort = 9000;
 
-      const isValidWH = function(o, t) {
+      const isValidWH = (o, t) => {
         t.equal(typeof o, 'object', 'creates an object');
         t.equal(typeof o.start, 'function', 'object has a start function');
         t.equal(typeof o.on, 'function', 'object has an on function');
         t.equal(typeof o.cleanup, 'function', 'object has a cleanup function');
-      }
+      };
 
       t3.afterEach(done => {
         common.resetEnvVars();
@@ -53,22 +55,26 @@ tap.test('Webhook server class', t1 => {
       t3.test('with no API key or API token', t4 => {
         delete process.env.TRELLO_API_KEY;
         delete process.env.TRELLO_API_TOK;
+        let whs;
         function wrapper() {
-          new webhookServer(validPort);
+          whs = new WebhookServer(validPort);
         }
 
         t4.throws(wrapper, 'throws an exception');
+        t4.equal(whs, undefined, 'WebhookServer should be undefined');
         t4.done();
       });
 
       t3.test('with no API key but an API token', t4 => {
         delete process.env.TRELLO_API_KEY;
         process.env.TRELLO_API_TOK = 'token';
+        let whs;
         function wrapper() {
-          new webhookServer(validPort);
+          whs = new WebhookServer(validPort);
         }
 
         t4.throws(wrapper, 'throws an exception');
+        t4.equal(whs, undefined, 'WebhookServer should be undefined');
         t4.done();
       });
 
@@ -76,7 +82,7 @@ tap.test('Webhook server class', t1 => {
         process.env.TRELLO_API_KEY = 'key';
         delete process.env.TRELLO_API_TOK;
 
-        const wh = new webhookServer(validPort);
+        const wh = new WebhookServer(validPort);
         isValidWH(wh, t4);
         t4.done();
       });
@@ -86,7 +92,7 @@ tap.test('Webhook server class', t1 => {
         process.env.TRELLO_API_KEY = 'key';
         process.env.TRELLO_API_TOK = 'token';
 
-        const wh = new webhookServer(validPort);
+        const wh = new WebhookServer(validPort);
         isValidWH(wh, t4);
         t4.done();
       });
@@ -110,7 +116,7 @@ tap.test('Webhook server class', t1 => {
 
     t2.beforeEach(done => {
       getHostnameMock = sandbox.stub(util, 'getHostname');
-      if(hostname) {
+      if (hostname) {
         getHostnameMock.resolves(hostname);
       } else {
         getHostnameMock.rejects('No hostname');
@@ -121,7 +127,7 @@ tap.test('Webhook server class', t1 => {
       });
       trelloPostMock = sandbox.stub(trello.prototype, 'post').yields(trelloError, { id: 'webhook-id' });
       process.env.TRELLO_API_KEY = 'key';
-      wh = new webhookServer(port);
+      wh = new WebhookServer(port);
       done();
     });
 
@@ -129,7 +135,7 @@ tap.test('Webhook server class', t1 => {
       common.resetEnvVars();
       sandbox.restore();
       test++;
-      switch(test) {
+      switch (test) {
         case 1:
           hostname = null;
           trelloError = new Error('Test Error');
@@ -248,7 +254,7 @@ tap.test('Webhook server class', t1 => {
 
   t1.test('on', t2 => {
     process.env.TRELLO_API_KEY = 'key';
-    const wh = new webhookServer(9000);
+    const wh = new WebhookServer(9000);
 
     wh.on('data', () => { });
     t2.pass('no exception');
@@ -259,7 +265,7 @@ tap.test('Webhook server class', t1 => {
 
   t1.test('cleanup', t2 => {
     process.env.TRELLO_API_KEY = 'key';
-    const wh = new webhookServer(9000);
+    const wh = new WebhookServer(9000);
 
     t2.test('with no webhook', t3 => {
       wh.cleanup().then(() => {
@@ -277,6 +283,7 @@ tap.test('Webhook server class', t1 => {
 
       wh.cleanup().then(() => {
         t3.pass('cleanup resolves');
+        t3.equal(trelloDelMock.callCount, 1, 'calls Trello delete once');
         t3.done();
       }).catch(() => {
         t3.fail('cleanup resolves');
@@ -290,6 +297,7 @@ tap.test('Webhook server class', t1 => {
 
       wh.cleanup().then(() => {
         t3.pass('cleanup resolves');
+        t3.equal(trelloDelMock.callCount, 1, 'calls Trello delete once');
         t3.done();
       }).catch(() => {
         t3.fail('cleanup resolves');
@@ -305,10 +313,10 @@ tap.test('Webhook server class', t1 => {
     process.env.TRELLO_API_KEY = 'key';
 
     const hostname = 'test-host';
-    const getHostnameMock = sandbox.stub(util, 'getHostname').resolves(hostname);
+    sandbox.stub(util, 'getHostname').resolves(hostname);
 
     const trelloClientSecret = 'client-secret-key';
-    const trelloData = `{ "some": "data", "value": 3 }`;
+    const trelloData = '{ "some": "data", "value": 3 }';
     const trelloSignature = crypto.createHmac('sha1', trelloClientSecret).update(trelloData + hostname).digest('base64');
 
     const reqOnMock = sandbox.stub();
@@ -316,11 +324,12 @@ tap.test('Webhook server class', t1 => {
       listen: sandbox.spy()
     });
 
-    const wh = new webhookServer(9000);
+    const wh = new WebhookServer(9000);
     wh.start();
     wh._hostname = hostname;
     const handler = createServerMock.args[0][0];
-    let dataEventHandler, endEventHandler;
+    let dataEventHandler;
+    let endEventHandler;
 
     const res = {
       statusCode: 0,
@@ -334,15 +343,15 @@ tap.test('Webhook server class', t1 => {
     });
 
     t2.test('handles HEAD request', t3 => {
-      handler({ method: 'HEAD', on: function() { } }, res);
+      handler({ method: 'HEAD', on: () => { } }, res);
       t3.equal(res.statusCode, 200, 'status code is 200');
       t3.equal(res.end.callCount, 1, 'res.end() called once');
       t3.done();
     });
 
-    for(const method of [ 'PUT', 'POST' ]) {
+    for (const method of ['PUT', 'POST']) {
       t2.test(`hadles ${method} request`, t3 => {
-        handler({ method: method, on: reqOnMock }, res);
+        handler({ method, on: reqOnMock }, res);
         t3.equal(reqOnMock.callCount, 2, 'req.on is called twice');
         t3.equal(reqOnMock.args[0][0], 'data', 'subscribed to data event');
         t3.equal(typeof reqOnMock.args[0][1], 'function', 'subscribed to data event with function');
@@ -354,7 +363,7 @@ tap.test('Webhook server class', t1 => {
     }
 
     const sendNewRequest = () => {
-      handler({ method: 'POST', on: reqOnMock, headers: { 'x-trello-webhook': trelloSignature }}, res);
+      handler({ method: 'POST', on: reqOnMock, headers: { 'x-trello-webhook': trelloSignature } }, res);
       dataEventHandler = reqOnMock.args[0][1];
       endEventHandler = reqOnMock.args[1][1];
     };
@@ -388,7 +397,7 @@ tap.test('Webhook server class', t1 => {
 
       common.resetEnvVars();
       t3.done();
-    })
+    });
 
     t2.done();
 
@@ -396,4 +405,4 @@ tap.test('Webhook server class', t1 => {
   });
 
   t1.done();
-})
+});

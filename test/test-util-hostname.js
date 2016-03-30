@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const tap = require('tap');
 const mock = require('mock-require');
@@ -11,7 +11,6 @@ tap.test('Hostname provider', t1 => {
   const testHostName = 'Test Host';
 
   t1.test('With hostname and localtunnel env var unset', t2 => {
-
     delete process.env.HOST;
     delete process.env.LOCALTUNNEL;
 
@@ -30,7 +29,7 @@ tap.test('Hostname provider', t1 => {
       t2.equal(host, testHostName, 'resolves hostname from env var');
       t2.done();
       common.resetEnvVars();
-    })
+    });
   });
 
   t1.test('With hostname env var unset and localtunnel env var set', t2 => {
@@ -38,7 +37,7 @@ tap.test('Hostname provider', t1 => {
     const onMock = sinon.spy();
 
     t2.beforeEach(done => {
-      delete process.env.HOST
+      delete process.env.HOST;
       process.env.LOCALTUNNEL = 'true';
 
       mock('localtunnel', sinon.stub().yieldsAsync(err, { on: onMock, url: testHostName }));
@@ -52,7 +51,7 @@ tap.test('Hostname provider', t1 => {
     });
 
     t2.test('With error from localtunnel', t3 => {
-      utils.getHostname(testPortNumber).then(x => {
+      utils.getHostname(testPortNumber).then(() => {
         t3.fail('resolved instead of rejecting');
         t3.done();
       }).catch(e => {
@@ -70,7 +69,7 @@ tap.test('Hostname provider', t1 => {
         t3.equal(onMock.args[0][0], 'close', 'subscribes to the close event');
         t3.equal(host, testHostName, 'resolves the expected hostname');
         t3.done();
-      }).catch(e => {
+      }).catch(() => {
         t3.fail('rejected instead of resolving');
         t3.done();
       });
@@ -79,31 +78,31 @@ tap.test('Hostname provider', t1 => {
   });
 
   t1.test('Handles localtunnel close event', t2 => {
-    delete process.env.HOST
+    delete process.env.HOST;
     process.env.LOCALTUNNEL = 'true';
     const onMock = sinon.spy();
     mock('localtunnel', sinon.stub().yieldsAsync(null, { on: onMock, url: testHostName }));
 
-    utils.getHostname(testPortNumber).then(host => {
+    utils.getHostname(testPortNumber).then(() => {
       t2.equal(onMock.callCount, 1, 'calls localtunnel event subscription once');
       t2.equal(onMock.args[0][0], 'close', 'subscribes to the close event');
       t2.equal(typeof onMock.args[0][1], 'function', 'subscribes with a function');
       try {
         onMock.args[0][1]();
         t2.pass('event handler does not throw');
-      } catch(e) {
+      } catch (e) {
         t2.fail('event handler throws');
       }
       mock.stop('localtunnel');
       common.resetEnvVars();
       t2.done();
-    }).catch((e) => {
+    }).catch(() => {
       t2.fail('rejected instead of resolving');
       mock.stop('localtunnel');
       common.resetEnvVars();
       t2.done();
-    })
-  })
+    });
+  });
 
   t1.done();
 });
