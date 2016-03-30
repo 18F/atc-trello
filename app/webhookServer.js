@@ -86,21 +86,25 @@ class TrelloWebhookServer {
         util.getHostname(this._port).then(hostname => {
           log.info(`Now accessible at ${hostname}`);
           this._hostname = hostname;
-          this._trello.post('/1/webhooks', {
-            description: 'ATC Trello Webhook',
-            callbackURL: hostname,
-            idModel: process.env.ATC_TRELLO_BOARD_ID
-          }, function(err, data) {
-            if(err) {
-              log.error('Error setting up Trello webhook');
-              log.error(err);
-              reject(err);
-            }
 
-            this._webhookID = data.id;
-            log.info(`Trello webhook registered [${data.id}]`);
-            resolve(this);
-          }.bind(this));
+          setTimeout(() => {
+            this._trello.post('/1/webhooks', {
+              description: 'ATC Trello Webhook',
+              callbackURL: hostname,
+              idModel: process.env.ATC_TRELLO_BOARD_ID
+            }, function(err, data) {
+              if(err) {
+                log.error('Error setting up Trello webhook');
+                log.error(err);
+                reject(err);
+              }
+
+              this._webhookID = data.id;
+              log.info(`Trello webhook registered [${data.id}]`);
+              resolve(this);
+            }.bind(this));
+          }, 500);
+
         }).catch(e => {
           log.error('Error getting hostname:');
           log.error(e);
