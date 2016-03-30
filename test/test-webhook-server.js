@@ -195,17 +195,16 @@ tap.test('Webhook server class', t1 => {
       t3.equal(getHostnameMock.callCount, 1, 'calls getHostname once');
       t3.equal(listenMock.callCount, 1, 'calls server.listen once');
       t3.equal(listenMock.args[0][0], port, 'listens on the specified port');
-      console.log(`Hostname: ${hostname}`);
 
       getHostnameMock().then(() => {
         t3.pass('getHostname resolves');
-        t3.equal(trelloPostMock.callCount, 1, 'calls trello.post once');
-        t3.equal(trelloPostMock.args[0][0], '/1/webhooks', 'posts to /1/webhooks');
-        t3.equal(trelloPostMock.args[0][1].callbackURL, hostname, 'registers its hostname as the callback');
-        t3.equal(trelloPostMock.args[0][2].idModel, process.env.ATC_TRELLO_BOARD_ID, 'registers for events from the ATC Trello board');
 
         whStart.then(() => {
           t3.pass('webhook server start resolves');
+          t3.equal(trelloPostMock.callCount, 1, 'calls trello.post once');
+          t3.equal(trelloPostMock.args[0][0], '/1/webhooks', 'posts to /1/webhooks');
+          t3.equal(trelloPostMock.args[0][1].callbackURL, hostname, 'registers its hostname as the callback');
+          t3.equal(trelloPostMock.args[0][2].idModel, process.env.ATC_TRELLO_BOARD_ID, 'registers for events from the ATC Trello board');
           t3.done();
         }).catch(() => {
           t3.fail('webhook server start resolves');
@@ -226,16 +225,16 @@ tap.test('Webhook server class', t1 => {
 
       getHostnameMock().then(() => {
         t3.pass('getHostname resolves');
-        t3.equal(trelloPostMock.callCount, 1, 'calls trello.post once');
-        t3.equal(trelloPostMock.args[0][0], '/1/webhooks', 'posts to /1/webhooks');
-        t3.equal(trelloPostMock.args[0][1].callbackURL, hostname, 'registers its hostname as the callback');
-        t3.equal(trelloPostMock.args[0][2].idModel, process.env.ATC_TRELLO_BOARD_ID, 'registers for events from the ATC Trello board');
 
         whStart.then(() => {
           t3.fail('webhook server start rejects');
           t3.done();
         }).catch(() => {
           t3.pass('webhook server start rejects');
+          t3.equal(trelloPostMock.callCount, 1, 'calls trello.post once');
+          t3.equal(trelloPostMock.args[0][0], '/1/webhooks', 'posts to /1/webhooks');
+          t3.equal(trelloPostMock.args[0][1].callbackURL, hostname, 'registers its hostname as the callback');
+          t3.equal(trelloPostMock.args[0][2].idModel, process.env.ATC_TRELLO_BOARD_ID, 'registers for events from the ATC Trello board');
           t3.done();
         });
       }).catch(() => {
