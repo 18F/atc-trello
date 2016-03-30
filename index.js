@@ -1,6 +1,6 @@
 'use strict';
 
-require('dotenv').config();
+require('./util/env');
 const PORT = process.env.PORT || 5000;
 const app = require('./app');
 const WebhookServer = app.webhookServer;
