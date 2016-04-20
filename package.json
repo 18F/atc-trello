@@ -28,6 +28,7 @@
     "tap": "^5.7.0"
   },
   "dependencies": {
+    "@18f/trello-webhook-server": "^3.0.1",
     "@erdc-itl/simple-logger": "^1.1.0",
     "bpa-trello-dashboard": "github:18f/bpa-trello",
     "cfenv": "^1.0.3",
