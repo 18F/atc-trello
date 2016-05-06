@@ -14,7 +14,7 @@
     "lint": "eslint --fix **/*.js"
   },
   "engines": {
-    "node": "^5.8.0",
+    "node": "^6.1.0",
     "npm": "^3.8.0"
   },
   "devDependencies": {
